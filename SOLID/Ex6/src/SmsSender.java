@@ -1,11 +1,17 @@
-// sms only uses phone and body, subject is ignored
 public class SmsSender extends NotificationSender {
-    public SmsSender(AuditLog audit) { super(audit); }
+    private final SmsNormalizer normalizer;
+
+    public SmsSender(AuditLog audit) {
+         super(audit); 
+         normalizer = new SmsNormalizer();
+    }
 
     @Override
-    public SendResult send(Notification n) {
-        System.out.println("SMS -> to=" + n.phone + " body=" + n.body);
+    public void send(Notification n) {
+        // LSP smell: truncates silently, changing meaning
+        String phone = normalizer.normalizePhone(n.phone);
+
+        System.out.println("SMS -> to=" + phone + " body=" + n.body);
         audit.add("sms sent");
-        return SendResult.ok("sms sent");
     }
 }

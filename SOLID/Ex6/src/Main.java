@@ -9,13 +9,13 @@ public class Main {
         NotificationSender sms = new SmsSender(audit);
         NotificationSender wa = new WhatsAppSender(audit);
 
-        // all senders return SendResult now, so we just check .success
         email.send(n);
         sms.send(n);
-
-        SendResult waResult = wa.send(n);
-        if (!waResult.success) {
-            System.out.println("WA ERROR: " + waResult.message);
+        try {
+            wa.send(n);
+        } catch (RuntimeException ex) {
+            System.out.println("WA ERROR: " + ex.getMessage());
+            audit.add("WA failed");
         }
 
         System.out.println("AUDIT entries=" + audit.size());

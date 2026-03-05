@@ -1,15 +1,20 @@
-// returns fail result for bad phone numbers instead of throwing
 public class WhatsAppSender extends NotificationSender {
-    public WhatsAppSender(AuditLog audit) { super(audit); }
+    private final WhataAppNormalizer normalizer;
+
+    public WhatsAppSender(AuditLog audit) {
+         super(audit); 
+         normalizer = new WhataAppNormalizer();
+    }
 
     @Override
-    public SendResult send(Notification n) {
-        if (n.phone == null || !n.phone.startsWith("+")) {
+    public void send(Notification n) {
+        if (!normalizer.isValid(n.phone)) {
+            System.out.println("WA ERROR: phone must start with + and country code");
             audit.add("WA failed");
-            return SendResult.fail("phone must start with + and country code");
+            return;
         }
+        
         System.out.println("WA -> to=" + n.phone + " body=" + n.body);
         audit.add("wa sent");
-        return SendResult.ok("wa sent");
     }
 }
